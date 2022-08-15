@@ -80,7 +80,7 @@ const Todo = () => {
         },
     ];
 
-    const [data,setData] = useState(todos);
+    const [data,setData] = useState([]);
 
     const [showModal, setShowModal] = useState(false);
 
@@ -101,13 +101,55 @@ const Todo = () => {
         setInput('');
 
     }
-    //console.log(data);
+    // console.log(data);
 
-    useEffect(() => {
-
-    },[data])
+    // useEffect(() => {
+    //     setData(data);
+    // },[data])
 
     const scrollRef = useRef(null);
+
+    //// Todo Edit and Delete Codes
+
+
+    const [isEdit,setIsEdit] = useState(false);
+    const [isEditing,setIsEditing] = useState(false);
+
+    const [subject,setSubject] = useState('task');
+
+  const [editInput,setEditInput] = useState('');
+
+  const onEditInputValue = ({val,item}) => {
+    console.log("inside edit");
+    const dataVal = item?.data;
+    if(dataVal!=val){
+        console.log("inside if in edit");
+      setEditInput(val);
+      let todosArray = [...data];
+      todosArray[item?.id] = {...data[item?.id],data: val};
+      setData(todosArray);
+      
+      console.log("todos array",todosArray);
+      
+    }
+    
+    else setEditInput(item?.data);
+
+
+    
+  }
+
+
+
+  const onDeleteClick = (item) => {
+    console.log("onDeleteClick",item?.id);
+    let itemValues = data.filter(val => val.id!==item?.id && val.data!==item?.data);
+    console.log("id ",itemValues)
+
+    setData(itemValues);
+  }
+
+
 
   return (
     <>
@@ -118,7 +160,18 @@ const Todo = () => {
                         <TodoItem 
                         item = {item}
                         key={index}
-                        simultaneousHandlers = {scrollRef}
+                        //simultaneousHandlers = {scrollRef}
+                        onPressLabel = {() =>setIsEditing(true)}
+                        onFinishEditing = {() =>setIsEditing(false)}
+                        isEditing = {isEditing}
+                        subject = {subject}
+                        onChangeSubject = {setSubject}
+                        // isEdit = {isEdit}
+                        // setIsEdit = {setIsEdit}
+                        // editInput = {editInput}
+                        // setEditInput = {setEditInput}
+                        // onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
+                        onDeleteClick = {() => onDeleteClick(item)}
                         />
                     ))}
                 </ScrollView> 
