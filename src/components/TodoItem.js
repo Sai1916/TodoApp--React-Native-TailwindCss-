@@ -1,11 +1,11 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Dimensions } from 'react-native'
 import React, { useState } from 'react'
 import Checkbox from 'expo-checkbox';
 import Animated,{useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import {Feather} from 'react-native-vector-icons'
 
-const TodoItem = ({item}) => {
+const TodoItem = ({item,simultaneousHandlers}) => {
     const [isChecked, setIsChecked] = useState(item.checked);
 
     //console.log(item);
@@ -17,6 +17,11 @@ const TodoItem = ({item}) => {
     }
 
     const translateX = useSharedValue(0);
+    const itemHeight = useSharedValue(48);
+
+    const {width: screen_width} = Dimensions.get("window");
+
+    const threshold = screen_width * .3;
 
     const gestureEvent = useAnimatedGestureHandler({ 
         onStart: (_, ctx) => {
@@ -26,7 +31,16 @@ const TodoItem = ({item}) => {
             translateX.value = event.translationX;
         },
         onEnd : (event) => {
-            translateX.value = 0;
+
+          const shouldDelete = translateX.value < threshold;
+
+          if(shouldDelete){
+            translateX.value = withTiming(-screen_width);
+            itemHeight.value = withTiming(0);
+          }
+          else if(event.translationX<-100){
+            translateX.value = withTiming(0);
+          }
         }
     })
 
@@ -41,18 +55,32 @@ const TodoItem = ({item}) => {
         }
     ));
 
+
+    const rIconStyle = useAnimatedStyle(() => {
+      const opacity = withTiming(translateX.value < threshold ? 1 : 0);
+      return { opacity };
+    });
+
+    const rTaskContainerStyle = useAnimatedStyle(() =>{
+      return { 
+        height : itemHeight.value,
+      }
+    })
+
   return (
-    <PanGestureHandler onGestureEvent={gestureEvent}>
-      <>
-        {/* <TouchableOpacity>
-          <Feather name="trash-2" size={24} />
-        </TouchableOpacity> */}
-        <Animated.View className="mx-2 my-3 bg-blue-200 p-3 flex flex-row rounded-xl items-center shadow-lg elevation-1" style={animatedStyle}>
+    <Animated.View className="flex-row-reverse w-screen m-2" style={rTaskContainerStyle}>
+      <Animated.View className="absolute items-center justify-center h-full w-20" style={rIconStyle}>
+        <Feather name="trash-2" size={24} color={'red'}/>
+      </Animated.View>
+     <PanGestureHandler simultaneousHandlers={simultaneousHandlers} onGestureEvent={gestureEvent}>
+        <Animated.View className="w-full bg-blue-200 p-3 flex flex-row rounded-xl items-center shadow-lg elevation-1" 
+          style={animatedStyle}
+        >
             <Checkbox className="rounded-full" value={isChecked} onValueChange={checkChange} />
             <Text className={`${isChecked ? 'line-through text-gray-400' : ''} px-3 text-base`}>{item.data}</Text>
         </Animated.View>
-      </>
-    </PanGestureHandler>
+      </PanGestureHandler>
+    </Animated.View>
   )
 }
 

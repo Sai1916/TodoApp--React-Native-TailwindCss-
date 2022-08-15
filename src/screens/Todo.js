@@ -1,5 +1,5 @@
-import { View, Text, Image,Modal, ScrollView, TouchableOpacity, Alert, Pressable, TextInput, TouchableWithoutFeedback } from 'react-native'
-import React, { useLayoutEffect, useState } from 'react'
+import { View, Text, Image,Modal, TouchableOpacity, Alert, Pressable, TextInput, TouchableWithoutFeedback } from 'react-native'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import { SvgUri } from "react-native-svg";
 import TodoItem from '../components/TodoItem';
@@ -8,6 +8,7 @@ import AddTodo from './AddTodo';
 import {
     GestureHandlerRootView,
     PanGestureHandler,
+    ScrollView,
   } from 'react-native-gesture-handler';
 
 
@@ -32,9 +33,54 @@ const Todo = () => {
             data: "hi!!!!!!!!!!",
             checked : false,
         },
+        {
+            id: 3,
+            data: "Nice try ....",
+            checked : false,
+        },
+        {
+            id: 4,
+            data: "hey jack!!",
+            checked : false,
+        },
+        {
+            id: 5,
+            data: "Let's do that assignment👊",
+            checked : true,
+        },
+        {
+            id: 6,
+            data: "Do all the wroks",
+            checked : false,
+        },
+        {
+            id: 7,
+            data: "hello",
+            checked : true,
+        },
+        {
+            id: 8,
+            data: "hi!!!!!!!!!!",
+            checked : false,
+        },
+        {
+            id: 9,
+            data: "hello",
+            checked : true,
+        },
+        {
+            id: 10,
+            data: "hi!!!!!!!!!!",
+            checked : false,
+        },
+        {
+            id: 11,
+            data: "hi!!!!!!!!!!",
+            checked : false,
+        },
     ];
 
-    const [data,setData] = useState([]);
+    const [data,setData] = useState(todos);
 
     const [showModal, setShowModal] = useState(false);
 
@@ -57,15 +103,22 @@ const Todo = () => {
     }
     //console.log(data);
 
+    useEffect(() => {
+
+    },[data])
+
+    const scrollRef = useRef(null);
+
   return (
     <>
         {data.length>0 ? (
             <GestureHandlerRootView className="bg-white flex-1">
-                <ScrollView>
+                <ScrollView ref={scrollRef}>
                     {data.map((item,index) => (
                         <TodoItem 
                         item = {item}
                         key={index}
+                        simultaneousHandlers = {scrollRef}
                         />
                     ))}
                 </ScrollView> 
