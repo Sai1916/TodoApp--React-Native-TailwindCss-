@@ -7,6 +7,7 @@ import {Feather,AntDesign} from 'react-native-vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import todos from '../../assets/data/todos'
 import {
+  FlatList,
     GestureHandlerRootView,
     PanGestureHandler,
     ScrollView,
@@ -119,8 +120,8 @@ const Todo = () => {
 
     // setData(newData);
 
-
-    removeTodo(`@todo_${idVal}`);
+    const key = `@todo_${idVal}`;
+    removeTodo(key);
 
 }
 
@@ -131,7 +132,7 @@ const storeData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value)
       console.log("jsonValue ",jsonValue);
-      await AsyncStorage.setItem(`@todo_${value.id}`, jsonValue)
+      await AsyncStorage.setItem(`@todo_${value?.id}`, jsonValue)
     } catch (e) {
       // saving error
     }
@@ -150,6 +151,7 @@ const storeData = async (value) => {
 
   const removeTodo = async (key) => {
     try {
+        console.log("key to remove ",key);
       await AsyncStorage.removeItem(key);
 
     } catch(e) {
@@ -167,47 +169,58 @@ const getAllTodos = async () => {
   
     // console.log("keys ",keys)
     
-    let todoDataFromAsyncStorage = [];
+    //let todoDataFromAsyncStorage = await AsyncStorage.multiGet(keys);
+    let result = []
 
     for(var i=0;i<keys.length;i++) {
         const val = await getTodo(keys[i]);
+        // const val = todoDataFromAsyncStorage[i][1];
         // console.log("val inside getallkeys ",val);
-        todoDataFromAsyncStorage.push(val);
+        result.push(val);
     }
 
-    setData(todoDataFromAsyncStorage);    
+    setData(result);    
 
+    //   console.log(result)
   }
 
   useEffect(() =>{
+       // AsyncStorage.clear();  // to clear all the objects stored in the async storage
       getAllTodos();
-  },[getAllTodos]);
+  },[getAllTodos,addTodo,removeTodo]);
 
   return (
     <>
         {data.length>0 ? (
-            <GestureHandlerRootView className="bg-white flex-1">
-                    <ScrollView ref={scrollRef}>
+            <GestureHandlerRootView className="flex-1 bg-white">
+                    {/* <ScrollView ref={scrollRef}>
                         {data.map((item,index) => ( 
-                            <TodoItem 
-                            item = {item}
-                            key={index}
-                            index = {item?.id}
-                            //simultaneousHandlers = {scrollRef}
-                            onPressLabel = {() =>setIsEditing(true)}
-                            onFinishEditing = {() =>setIsEditing(false)}
-                            isEditing = {isEditing}
-                            subject = {subject}
-                            onChangeSubject = {setSubject}
-                            // isEdit = {isEdit}
-                            // setIsEdit = {setIsEdit}
-                            // editInput = {editInput}
-                            // setEditInput = {setEditInput}
-                            onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
-                            onDeleteClick = {() => onDeleteClick(item?.id)}
+                            
+                        ))} 
+                    </ScrollView>  */}
+                    <FlatList 
+                      data={data}
+                      keyExtractor = {item => item?.id}
+                      renderItem = {({item,index}) => (
+                        <TodoItem 
+                                itemData = {item}
+                                key={item?.id}
+                                index = {index}
+                                //simultaneousHandlers = {scrollRef}
+                                onPressLabel = {() =>setIsEditing(true)}
+                                onFinishEditing = {() =>setIsEditing(false)}
+                                isEditing = {isEditing}
+                                subject = {subject}
+                                onChangeSubject = {setSubject}
+                                // isEdit = {isEdit}
+                                // setIsEdit = {setIsEdit}
+                                // editInput = {editInput}
+                                // setEditInput = {setEditInput}
+                                onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
+                                onDeleteClick = {() => onDeleteClick(item?.id)}
                             />
-                            ))} 
-                    </ScrollView> 
+                      )}
+                    />
             </GestureHandlerRootView>
         ) : (
             <View className="flex-1 items-center justify-center bg-white">
@@ -223,8 +236,8 @@ const getAllTodos = async () => {
                 <Feather name="plus" size={32} color={'black'} />
             </TouchableOpacity>
 
+
            { showModal && (
-                
 
                     <Modal
                         animationType="slide"
@@ -238,7 +251,7 @@ const getAllTodos = async () => {
                         
                             <View className="h-300 w-full flex justify-between p-4 bg-neutral-200 shadow-transparent absolute z-30 bottom-0 rounded-t-3xl">
                                 <View className="flex-row items-center justify-between">
-                                   <Text>Add the Task</Text>
+                                   <Text className="text-xl font-bold">Add the Task</Text>
                                     <Pressable className="bg-red-600 rounded-full h-8 w-8 items-center justify-center" onPress={() => setShowModal(!showModal)}>
                                         <AntDesign name="close" size={24} color={'white'} />
                                     </Pressable>

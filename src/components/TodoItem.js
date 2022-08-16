@@ -8,7 +8,7 @@ import { RectButton } from 'react-native-gesture-handler';
 import Swipeable from 'react-native-gesture-handler/Swipeable';
 
 const TodoItem = ({
-  item,
+  itemData: item,
   // simultaneousHandlers,
   // isEdit,
   // setIsEdit,
@@ -187,8 +187,9 @@ const TodoItem = ({
       <Animated.View 
         className="w-screen m-2" 
         entering={SlideInLeft.delay(300)} 
-        exiting={FadeOut.delay(300)}
+        exiting={FadeOut.delay(1000)}
         layout={Layout.delay(200)}
+        // style={rTaskContainerStyle}
       > 
         <Swipeable renderRightActions={renderRightActions}>
           <Animated.View className="w-full bg-blue-200 p-3 flex flex-row rounded-xl items-center shadow-lg elevation-1" 

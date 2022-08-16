@@ -17,14 +17,14 @@ export const TodoStack = () => {
               //headerShown: false,
             }}
         />
-        <Stack.Screen 
+        {/* <Stack.Screen 
             name="AddTodo" 
             component={AddTodo}
             options={{
               headerShown: false,
             }}
             presentation={'modal'}
-        />
+        /> */}
     </Stack.Navigator>
   )
 }
