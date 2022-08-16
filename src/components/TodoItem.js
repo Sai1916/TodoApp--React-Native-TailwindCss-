@@ -14,15 +14,16 @@ const TodoItem = ({
   // setIsEdit,
   // editInput,
   // setEditInput,
-  // onEditInputValue,
+  onEditInputValue,
   onDeleteClick,
+  index,
   onPressLabel,
   subject,
   isEditing,
   onChangeSubject,
   onFinishEditing
 }) => {
-    const [isChecked, setIsChecked] = useState(item.checked);
+    const [isChecked, setIsChecked] = useState(item?.checked);
 
     //console.log(item);
 
@@ -120,7 +121,7 @@ const TodoItem = ({
                 </TouchableOpacity>
               </RectButton>
               <RectButton className="h-full w-1/2 items-center justify-center">
-                  <TouchableOpacity onPress={() => onDeleteClick(item)}>
+                  <TouchableOpacity onPress={() => onDeleteClick(item?.id)}>
                     <Feather name="trash-2" size={24} color={'red'}/>
                   </TouchableOpacity>
               </RectButton>
@@ -173,12 +174,12 @@ const TodoItem = ({
     [onChangeSubject]
   )
 
-    const [value,setValue] = useState(item?.data);
+    const [value,setValue] = useState(item?.text);
  
     useEffect(() => {
-      if(value!=subject){
+      if(isEditing && item.id === index && item.text!=value){
         onChangeSubject(value);
-        // onEditInputValue(value,item);
+        onEditInputValue(value,item);
       }
     },[value])
 
@@ -197,7 +198,7 @@ const TodoItem = ({
                   //onChangeText={({val,item}) => onEditInputValue(val,item)} 
                   className="px-3 text-base w-2/3" />
                 ) : (
-                <Text onPress={onPressLabel} className={`${isChecked ? 'line-through text-gray-400' : ''} px-3 text-base`}>{subject}</Text>
+                <Text onPress={onPressLabel} className={`${isChecked ? 'line-through text-gray-400' : ''} px-3 text-base`}>{value}</Text>
               )}
           </Animated.View>
         </Swipeable>

@@ -5,6 +5,7 @@ import { SvgUri } from "react-native-svg";
 import TodoItem from '../components/TodoItem';
 import {Feather,AntDesign} from 'react-native-vector-icons';
 import AddTodo from './AddTodo';
+import todos from '../../assets/data/todos'
 import {
     GestureHandlerRootView,
     PanGestureHandler,
@@ -22,86 +23,34 @@ const Todo = () => {
         })
     },[])
 
-    const todos = [
-        {
-            id: 1,
-            data: "hello",
-            checked : true,
-        },
-        {
-            id: 2,
-            data: "hi!!!!!!!!!!",
-            checked : false,
-        },
-        {
-            id: 3,
-            data: "Nice try ....",
-            checked : false,
-        },
-        {
-            id: 4,
-            data: "hey jack!!",
-            checked : false,
-        },
-        {
-            id: 5,
-            data: "Let's do that assignment👊",
-            checked : true,
-        },
-        {
-            id: 6,
-            data: "Do all the wroks",
-            checked : false,
-        },
-        {
-            id: 7,
-            data: "hello",
-            checked : true,
-        },
-        {
-            id: 8,
-            data: "hi!!!!!!!!!!",
-            checked : false,
-        },
-        {
-            id: 9,
-            data: "hello",
-            checked : true,
-        },
-        {
-            id: 10,
-            data: "hi!!!!!!!!!!",
-            checked : false,
-        },
-        {
-            id: 11,
-            data: "hi!!!!!!!!!!",
-            checked : false,
-        },
-    ];
+    
 
     const [data,setData] = useState([]);
 
     const [showModal, setShowModal] = useState(false);
 
     const [input,setInput] = useState('');
+    
+    var count = data.length;
 
     const addTodo = () => {
-        if(input=='') return;
+        if(input==='') return;
 
         console.log(`value is ${input}`)
         const newTodo = {
-            id: data.length+1,
-            data: input,
+            id: count,
+            text: input,
             checked: false,
         }
 
         setData([...data,newTodo])
 
+        count++;
+
         setInput('');
 
     }
-    // console.log(data);
+    console.log(data);
 
     // useEffect(() => {
     //     setData(data);
@@ -119,37 +68,55 @@ const Todo = () => {
 
   const [editInput,setEditInput] = useState('');
 
-  const onEditInputValue = ({val,item}) => {
-    console.log("inside edit");
-    const dataVal = item?.data;
+  const onEditInputValue = (val,item) => {
+    console.log("inside edit",val);
+    const dataVal = item?.text;
     if(dataVal!=val){
         console.log("inside if in edit");
       setEditInput(val);
       let todosArray = [...data];
-      todosArray[item?.id] = {...data[item?.id],data: val};
+      let newDataVal = {
+        id: item?.id, 
+        text: val,
+        checked: item?.checked
+      }
+      todosArray[item?.id] = newDataVal;
       setData(todosArray);
       
       console.log("todos array",todosArray);
-      
-    }
-    
-    else setEditInput(item?.data);
-
-
+    }    
+    else setEditInput(item?.text);
     
   }
 
 
 
-  const onDeleteClick = (item) => {
-    console.log("onDeleteClick",item?.id);
-    let itemValues = data.filter(val => val.id!==item?.id && val.data!==item?.data);
-    console.log("id ",itemValues)
+  const onDeleteClick = (index) => {
+    console.log("onDeleteClick",index);
+   // let itemValues = data.filter(val => val.id!==index);
+    const newData = [...data];
+    // const indexVal = data.findIndex(dataItem => dataItem.id === index);
+    newData.splice(index,1);
+    //console.log("id ",newData)
 
-    setData(itemValues);
+    let itemValues = [...data];
+
+    let newArray = itemValues.filter((val) => val?.id !==index);
+    //console.log("new array ",newArray)
+    console.log("new array ",newData)
+
+    // setData(newArray.map((item,index) => ({
+    //     id: `${index}`,
+    //     text: item.text,
+    //     checked: item.checked
+    // })));
+
+    setData(newData);
   }
 
-
+  useEffect(() =>{
+    setData(data);
+  },[data]);
 
   return (
     <>
@@ -160,6 +127,7 @@ const Todo = () => {
                         <TodoItem 
                         item = {item}
                         key={index}
+                        index = {item?.id}
                         //simultaneousHandlers = {scrollRef}
                         onPressLabel = {() =>setIsEditing(true)}
                         onFinishEditing = {() =>setIsEditing(false)}
@@ -170,8 +138,8 @@ const Todo = () => {
                         // setIsEdit = {setIsEdit}
                         // editInput = {editInput}
                         // setEditInput = {setEditInput}
-                        // onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
-                        onDeleteClick = {() => onDeleteClick(item)}
+                        onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
+                        onDeleteClick = {() => onDeleteClick(item?.id)}
                         />
                     ))}
                 </ScrollView> 
