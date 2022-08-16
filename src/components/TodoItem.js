@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, Dimensions, Alert, TextInput } from 'react-native'
 import React, { useCallback, useEffect, useState } from 'react'
 import Checkbox from 'expo-checkbox';
-import Animated,{useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
+import Animated,{FadeInLeft, FadeInRight, FadeOut, Layout, SlideInLeft, SlideInRight, SlideOutRight, SlideOutUp, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated'
 import { PanGestureHandler } from 'react-native-gesture-handler';
 import {Feather} from 'react-native-vector-icons'
 import { RectButton } from 'react-native-gesture-handler';
@@ -184,7 +184,12 @@ const TodoItem = ({
     },[value])
 
     return ( 
-      <Animated.View className="w-screen m-2" style={rTaskContainerStyle}>
+      <Animated.View 
+        className="w-screen m-2" 
+        entering={SlideInLeft.delay(300)} 
+        exiting={FadeOut.delay(300)}
+        layout={Layout.delay(200)}
+      > 
         <Swipeable renderRightActions={renderRightActions}>
           <Animated.View className="w-full bg-blue-200 p-3 flex flex-row rounded-xl items-center shadow-lg elevation-1" 
             //  style={animatedStyle} 

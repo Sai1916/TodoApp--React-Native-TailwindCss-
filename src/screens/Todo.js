@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { SvgUri } from "react-native-svg";
 import TodoItem from '../components/TodoItem';
 import {Feather,AntDesign} from 'react-native-vector-icons';
-import AddTodo from './AddTodo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import todos from '../../assets/data/todos'
 import {
     GestureHandlerRootView,
@@ -43,15 +43,18 @@ const Todo = () => {
             checked: false,
         }
 
-        setData([...data,newTodo])
+       // setData([...data,newTodo])
+
+        storeData(newTodo);
 
         count++;
-
+        
         setInput('');
-
+        
     }
-    console.log(data);
-
+    // console.log(data);
+    
+   
     // useEffect(() => {
     //     setData(data);
     // },[data])
@@ -68,7 +71,7 @@ const Todo = () => {
 
   const [editInput,setEditInput] = useState('');
 
-  const onEditInputValue = (val,item) => {
+  const onEditInputValue = async (val,item) => {
     console.log("inside edit",val);
     const dataVal = item?.text;
     if(dataVal!=val){
@@ -80,8 +83,10 @@ const Todo = () => {
         text: val,
         checked: item?.checked
       }
-      todosArray[item?.id] = newDataVal;
-      setData(todosArray);
+      //todosArray[item?.id] = newDataVal;
+      //setData(todosArray);
+
+      await AsyncStorage.mergeItem(`@todo_${item?.id}`, JSON.stringify(newDataVal));
       
       console.log("todos array",todosArray);
     }    
@@ -91,19 +96,20 @@ const Todo = () => {
 
 
 
-  const onDeleteClick = (index) => {
-    console.log("onDeleteClick",index);
+  const onDeleteClick = (idVal) => {
+    console.log("onDeleteClick",idVal);
    // let itemValues = data.filter(val => val.id!==index);
-    const newData = [...data];
-    // const indexVal = data.findIndex(dataItem => dataItem.id === index);
-    newData.splice(index,1);
-    //console.log("id ",newData)
+   // const indexVal = data.findIndex(dataItem => dataItem.id === index);
+   //console.log("id ",newData)
+   
+   
+//    const newData = [...data];
+//     newData.splice(index,1);
 
-    let itemValues = [...data];
+//     let itemValues = [...data];
 
-    let newArray = itemValues.filter((val) => val?.id !==index);
-    //console.log("new array ",newArray)
-    console.log("new array ",newData)
+//     let newArray = itemValues.filter((val) => val?.id !==index);
+//     console.log("new array ",newData)
 
     // setData(newArray.map((item,index) => ({
     //     id: `${index}`,
@@ -111,38 +117,97 @@ const Todo = () => {
     //     checked: item.checked
     // })));
 
-    setData(newData);
+    // setData(newData);
+
+
+    removeTodo(`@todo_${idVal}`);
+
+}
+
+
+/// AsyncStorage Code  
+
+const storeData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      console.log("jsonValue ",jsonValue);
+      await AsyncStorage.setItem(`@todo_${value.id}`, jsonValue)
+    } catch (e) {
+      // saving error
+    }
+  }
+
+  const getTodo = async (key) => {
+    try {
+        //return await AsyncStorage.getItem(key);
+        const jsonValue = await AsyncStorage.getItem(key);
+        // console.log("getTodo ",jsonValue);
+        return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch(e) {
+      // read error
+    }
+  }
+
+  const removeTodo = async (key) => {
+    try {
+      await AsyncStorage.removeItem(key);
+
+    } catch(e) {
+      // remove error
+    }
+  }
+
+const getAllTodos = async () => {
+    let keys = []
+    try {
+      keys = await AsyncStorage.getAllKeys()
+    } catch(e) {
+      // read key error
+    }
+  
+    // console.log("keys ",keys)
+    
+    let todoDataFromAsyncStorage = [];
+
+    for(var i=0;i<keys.length;i++) {
+        const val = await getTodo(keys[i]);
+        // console.log("val inside getallkeys ",val);
+        todoDataFromAsyncStorage.push(val);
+    }
+
+    setData(todoDataFromAsyncStorage);    
+
   }
 
   useEffect(() =>{
-    setData(data);
-  },[data]);
+      getAllTodos();
+  },[getAllTodos]);
 
   return (
     <>
         {data.length>0 ? (
             <GestureHandlerRootView className="bg-white flex-1">
-                <ScrollView ref={scrollRef}>
-                    {data.map((item,index) => (
-                        <TodoItem 
-                        item = {item}
-                        key={index}
-                        index = {item?.id}
-                        //simultaneousHandlers = {scrollRef}
-                        onPressLabel = {() =>setIsEditing(true)}
-                        onFinishEditing = {() =>setIsEditing(false)}
-                        isEditing = {isEditing}
-                        subject = {subject}
-                        onChangeSubject = {setSubject}
-                        // isEdit = {isEdit}
-                        // setIsEdit = {setIsEdit}
-                        // editInput = {editInput}
-                        // setEditInput = {setEditInput}
-                        onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
-                        onDeleteClick = {() => onDeleteClick(item?.id)}
-                        />
-                    ))}
-                </ScrollView> 
+                    <ScrollView ref={scrollRef}>
+                        {data.map((item,index) => ( 
+                            <TodoItem 
+                            item = {item}
+                            key={index}
+                            index = {item?.id}
+                            //simultaneousHandlers = {scrollRef}
+                            onPressLabel = {() =>setIsEditing(true)}
+                            onFinishEditing = {() =>setIsEditing(false)}
+                            isEditing = {isEditing}
+                            subject = {subject}
+                            onChangeSubject = {setSubject}
+                            // isEdit = {isEdit}
+                            // setIsEdit = {setIsEdit}
+                            // editInput = {editInput}
+                            // setEditInput = {setEditInput}
+                            onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
+                            onDeleteClick = {() => onDeleteClick(item?.id)}
+                            />
+                            ))} 
+                    </ScrollView> 
             </GestureHandlerRootView>
         ) : (
             <View className="flex-1 items-center justify-center bg-white">
