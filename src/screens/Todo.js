@@ -18,13 +18,6 @@ const Todo = () => {
 
     const navigation = useNavigation();
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerShown: false, 
-        })
-    },[])
-
-    
 
     const [data,setData] = useState([]);
 
@@ -46,9 +39,9 @@ const Todo = () => {
 
        // setData([...data,newTodo])
 
-        storeData(newTodo);
+       storeData(newTodo);
+       count++;
 
-        count++;
         
         setInput('');
         
@@ -72,7 +65,7 @@ const Todo = () => {
 
   const [editInput,setEditInput] = useState('');
 
-  const onEditInputValue = async (val,item) => {
+  const onEditInputValue = (val,item) => {
     console.log("inside edit",val);
     const dataVal = item?.text;
     if(dataVal!=val){
@@ -87,7 +80,7 @@ const Todo = () => {
       //todosArray[item?.id] = newDataVal;
       //setData(todosArray);
 
-      await AsyncStorage.mergeItem(`@todo_${item?.id}`, JSON.stringify(newDataVal));
+      AsyncStorage.mergeItem(`@todo_${item?.id}`, JSON.stringify(newDataVal));
       
       console.log("todos array",todosArray);
     }    
@@ -128,17 +121,18 @@ const Todo = () => {
 
 /// AsyncStorage Code  
 
-const storeData = async (value) => {
+const storeData = async(value) => {
     try {
       const jsonValue = JSON.stringify(value)
       console.log("jsonValue ",jsonValue);
-      await AsyncStorage.setItem(`@todo_${value?.id}`, jsonValue)
+     await AsyncStorage.setItem(`@todo_${value?.id}`, jsonValue)
     } catch (e) {
       // saving error
+      console.log(e,"in save todo");
     }
   }
 
-  const getTodo = async (key) => {
+  const getTodo = async(key) => {
     try {
         //return await AsyncStorage.getItem(key);
         const jsonValue = await AsyncStorage.getItem(key);
@@ -146,60 +140,82 @@ const storeData = async (value) => {
         return jsonValue != null ? JSON.parse(jsonValue) : null;
     } catch(e) {
       // read error
+      console.log(e,"in get todo");
     }
   }
 
-  const removeTodo = async (key) => {
+  const removeTodo =  async(key) => {
     try {
         console.log("key to remove ",key);
-      await AsyncStorage.removeItem(key);
+       await AsyncStorage.removeItem(key);
 
     } catch(e) {
       // remove error
+      console.log(e,"in remove todo");
     }
   }
 
-const getAllTodos = async () => {
-    let keys = []
-    try {
-      keys = await AsyncStorage.getAllKeys()
-    } catch(e) {
-      // read key error
-    }
-  
-    // console.log("keys ",keys)
-    
-    //let todoDataFromAsyncStorage = await AsyncStorage.multiGet(keys);
-    let result = []
 
-    for(var i=0;i<keys.length;i++) {
-        const val = await getTodo(keys[i]);
-        // const val = todoDataFromAsyncStorage[i][1];
-        // console.log("val inside getallkeys ",val);
-        result.push(val);
-    }
-
-    setData(result);    
-
-    //   console.log(result)
-  }
 
   useEffect(() =>{
        // AsyncStorage.clear();  // to clear all the objects stored in the async storage
-      getAllTodos();
-  },[getAllTodos,addTodo,removeTodo]);
+       const getAllTodos = async() => {
+        let keys = []
+        try {
+          keys = await AsyncStorage.getAllKeys()
+        } catch(e) {
+          // read key error
+          console.log(e);
+        }
+      
+        // console.log("keys ",keys)
+        //let todoDataFromAsyncStorage = await AsyncStorage.multiGet(keys);
+        let result = []
+    
+        for(var i=0;i<keys.length;i++) {
+            const val =await getTodo(keys[i]);
+            // const val = todoDataFromAsyncStorage[i][1];
+            // console.log("val inside getallkeys ",val);
+            result.push(val);
+        }
+    
+        setData(result);    
+    
+        //   console.log(result)
+      }
+
+
+       getAllTodos();
+  },[removeTodo,addTodo]);
 
   return (
     <>
         {data.length>0 ? (
             <GestureHandlerRootView className="flex-1 bg-white">
-                    {/* <ScrollView ref={scrollRef}>
+                    <ScrollView ref={scrollRef}>
                         {data.map((item,index) => ( 
-                            
+                            <TodoItem 
+                            itemData = {item}
+                            key={item?.id}
+                            index = {index}
+                            //simultaneousHandlers = {scrollRef}
+                            onPressLabel = {() =>setIsEditing(true)}
+                            onFinishEditing = {() =>setIsEditing(false)}
+                            isEditing = {isEditing}
+                            subject = {subject}
+                            onChangeSubject = {setSubject}
+                            // isEdit = {isEdit}
+                            // setIsEdit = {setIsEdit}
+                            // editInput = {editInput}
+                            // setEditInput = {setEditInput}
+                            onEditInputValue = {(subject,item) => onEditInputValue(subject,item)}
+                            onDeleteClick = {() => onDeleteClick(item?.id)}
+                        />
                         ))} 
-                    </ScrollView>  */}
-                    <FlatList 
+                    </ScrollView> 
+                    {/* <FlatList 
                       data={data}
+                      initialNumToRender={10}
                       keyExtractor = {item => item?.id}
                       renderItem = {({item,index}) => (
                         <TodoItem 
@@ -220,7 +236,7 @@ const getAllTodos = async () => {
                                 onDeleteClick = {() => onDeleteClick(item?.id)}
                             />
                       )}
-                    />
+                    /> */}
             </GestureHandlerRootView>
         ) : (
             <View className="flex-1 items-center justify-center bg-white">

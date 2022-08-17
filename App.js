@@ -4,9 +4,10 @@ import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TailwindProvider } from 'tailwindcss-react-native';
 import Navigation from './navigation/TabNavigation';
+import { registerRootComponent } from 'expo';
 
 
-export default function App() {
+function App() {
   return (
     <TailwindProvider>
         <View className="flex-1">
@@ -18,6 +19,8 @@ export default function App() {
     </TailwindProvider>
   );
 }
+
+export default App;
 
 const styles = StyleSheet.create({
   container: {

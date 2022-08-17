@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native'
+import { View, Text, Button, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs'
 import {Feather,Octicons} from 'react-native-vector-icons';
@@ -28,21 +28,27 @@ const Navigation = () => {
         <Tab.Screen 
             name="Task Saver"
             component={TodoStack}
+            
             options={{
               //headerShown: false,
+              // headerRight: () => (
+              //   <TouchableOpacity className="">
+              //     <Text>Clear All</Text>
+              //   </TouchableOpacity>
+              // ),
               tabBarIcon: ({ color }) => (
                 <Octicons name="tasklist" size={26} color={color} />
               ),
               headerStyle : {
-                backgroundColor : 'skyblue',
-              }
+                backgroundColor : 'lightgreen',
+              },
             }}
         />
         <Tab.Screen 
             name="ProfileStack"
             component={ProfileStack}
             options={{
-              headerShown: false,
+              // headerShown: false,
               tabBarIcon: ({ color }) => (
                 <Feather name="user" size={26} color={color} />
               ),

@@ -187,8 +187,8 @@ const TodoItem = ({
       <Animated.View 
         className="w-screen m-2" 
         entering={SlideInLeft.delay(300)} 
-        exiting={FadeOut.delay(1000)}
-        layout={Layout.delay(200)}
+        exiting={FadeOut.delay(600)}
+        layout={Layout.delay(300)}    
         // style={rTaskContainerStyle}
       > 
         <Swipeable renderRightActions={renderRightActions}>
